@@ -6,12 +6,14 @@ Write in the redis 1000000 key-value
 import json
 from random import randint
 import redis
+import getopt
+import sys
 #------------------------------------------------------------------------------
 
 
-def write_redis():
+def write_redis(host='localhost', port=6379, db=0):
 
-    r = redis.StrictRedis(host='localhost', port=6379, db=0)
+    r = redis.StrictRedis(host, port, db)
     user_dict = {}
     for i in xrange(1000000):
         user_id = randint(1, 10000)
@@ -28,8 +30,21 @@ def write_redis():
 
 
 def main():
+    opts,args = getopt.getopt(sys.argv[1:],'h:p:d:')
+    if len(opts) == 0:
+        write_redis()
+    elif len(opts) == 3:
+        for op, value in opts:
+            if op is 'h':
+                host = value
+            if op is 'p':
+                post = value
+            if op is 'd':
+                db = value
+        write_redis(host, post, db)
+    else:
+        print 'Args error!'
 
-    write_redis()
 
 if __name__ == '__main__':
     main()

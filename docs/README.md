@@ -32,3 +32,20 @@
 
 Python需要redis依赖包
 
+##调试方法
+
+1. 首先启动redis-server
+2. 生成数据写入数据库,如果启动默认数据库设置,则运行如下命令:
+
+		$ python data.py
+    
+    如果非默认数据库可设置如下,参数为配置对应的参数
+    
+    	$ python data.py -h localhost -p 6379 -d 0
+    
+    -h : 主机地址
+    -p : 端口号
+    -d : 数据库
+3. 进行单元测试
+	
+    	$ python test_API.py

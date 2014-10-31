@@ -76,12 +76,6 @@ def main():
             use_time += end - start
         print use_time / 10
 
-    # start = time.clock()
-    # for i in range(10000):
-    #     hide_question('1', '4729')
-    #     display_question('1', '4729')
-    # end = time.clock()
-    # print end - start
 
 if __name__ == '__main__':
     main()
