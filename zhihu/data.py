@@ -32,16 +32,24 @@ def write_redis(host='localhost', port=6379, db=0):
 def main():
     opts,args = getopt.getopt(sys.argv[1:],'h:p:d:')
     if len(opts) == 0:
-        write_redis()
+        try:
+            write_redis()
+            print 'OK'
+        except:
+            print 'Redis error'
     elif len(opts) == 3:
         for op, value in opts:
-            if op is 'h':
+            if op == '-h':
                 host = value
-            if op is 'p':
+            if op == '-p':
                 post = value
-            if op is 'd':
+            if op == '-d':
                 db = value
-        write_redis(host, post, db)
+        try:
+            write_redis(host, post, db)
+            print 'OK'
+        except:
+            print 'Redis error'
     else:
         print 'Args error!'
 
