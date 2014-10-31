@@ -19,7 +19,7 @@ JSON
 |--------|--------|--------|--------|
 | user_id | true | string | 需要查询用户的ID |
 | page | false | int | 分页请求,页数,默认为0 |
-| length | false | int | 分页请求,分页长度,默认为-1 |
+| length | false | int | 分页请求,分页长度,默认为1 |
 
 ####返回结果
 
@@ -50,7 +50,7 @@ JSON
 ####注意事项
 
 1. 默认起始页为```0```
-2. 如果输入参数page,length为空,将默认返回用户全部的活动信息
+2. 如果输入参数page,length为空,将默认返回用户最近1条活动信息
 
 ##API.hide_question()
 

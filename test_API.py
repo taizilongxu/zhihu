@@ -17,7 +17,7 @@ class TestAPI(unittest.TestCase):
         """Find the first user_id in zset"""
         self.r = redis.StrictRedis()
         for i in range(0, 10000):
-            if self.r.zcard(str(i)):
+            if self.r.zcard(str(i) + ':timeline'):
                 self.user_id = str(i)
                 break
         self.test_user_timeline()
@@ -41,16 +41,16 @@ class TestAPI(unittest.TestCase):
     def test_hide_question(self):
         self.assertTrue(API.hide_question(self.user_id, self.question_id))
         self.assertEqual(int(self.unix_time), self.r.zscore(self.user_id + ':hide', self.question_id))
-        self.assertEqual(None, self.r.zscore(self.user_id, self.question_id))
+        self.assertEqual(None, self.r.zscore(self.user_id + ':timeline', self.question_id))
 
     def test_display_question(self):
-        self.assertTrue(API.display_question(self.user_id, self.question_id))
+        self.assertTrue(API.display_question(self.user_id + ':timeline', self.question_id))
         self.assertEqual(self.question_id, json.loads(API.user_timeline(self.user_id, 0, 10))[0]['question_id'])
         self.assertEqual(None, self.r.zscore(self.user_id + ':hide', self.question_id))
 
     def test_if_display_question(self):
         """Test that the 'question' display and not in hide zset"""
-        self.assertEqual(int(self.unix_time), self.r.zscore(self.user_id, self.question_id))
+        self.assertEqual(int(self.unix_time), self.r.zscore(self.user_id + ':timeline', self.question_id))
         self.assertEqual(None, self.r.zscore(self.user_id + ':hide', self.question_id))
 
 if __name__ == '__main__':
