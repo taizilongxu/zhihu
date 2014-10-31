@@ -37,32 +37,30 @@ def user_timeline(user_id, page=0, length=1):
         return ERROR
 
 
-def hide_question(user_id, question_id):
+def fun_question(user_id, question_id, tag):
+    tmp1 = user_id + ':hide'
+    tmp2 = user_id + ':timeline'
+    if tag != 1:
+        tmp1, tmp2 = tmp2, tmp1
     try:
-        # the question in hide zset
-        if r.zscore(user_id + ':hide', question_id):
+        # the question in  zset
+        if r.zscore(tmp1, question_id):
             return ERROR
-        unix_time = r.zscore(user_id + ':timeline', question_id)
-        pipe.zrem(user_id + ':timeline', question_id)  # del the question
-        pipe.zadd(user_id + ':hide', unix_time, question_id)  # add the question
+        unix_time = r.zscore(tmp2, question_id)
+        pipe.zrem(tmp2, question_id)  # del the question
+        pipe.zadd(tmp1, unix_time, question_id)  # add the question
         pipe.execute()
         return json.dumps({'r': '1'})
     except:
         return ERROR
+
+
+def hide_question(user_id, question_id):
+    return fun_question(user_id, question_id, 1)
 
 
 def display_question(user_id, question_id):
-    try:
-        # the question in the zset
-        if r.zscore(user_id + ':timeline', question_id):
-            return ERROR
-        unix_time = r.zscore(user_id + ':hide', question_id)
-        pipe.zrem(user_id + ':hide', question_id)  # del the question
-        pipe.zadd(user_id + ':timeline', unix_time, question_id)  # add the question
-        pipe.execute()
-        return json.dumps({'r': '1'})
-    except:
-        return ERROR
+    return fun_question(user_id, question_id, 0)
 
 
 def main():
