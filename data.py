@@ -1,4 +1,6 @@
 #-*- encoding: UTF-8 -*-
+"""Write in the redis
+"""
 #---------------------------------import---------------------------------------
 import json
 from random import randint
@@ -15,12 +17,12 @@ def write_redis():
         action = randint(1, 7)
         question_id = randint(1, 10000)
         if user_id in user_dict:
-            unix_time = dic[user_id] + randint(1, 31556926 * 4)
+            unix_time = user_dict[user_id] + randint(1, 31556926 * 4)
         else:
             unix_time = randint(1, 31556926 * 4) + 1411000000
-        dic[user_id] = unix_time
+        user_dict[user_id] = unix_time
         # write in the DB
-        r.set(str(user_id) + ':' + str(question_id) + ':action', action)
+        r.set(str(user_id) + ':' + str(question_id), action)
         r.zadd(str(user_id), str(unix_time), str(question_id))
 
 

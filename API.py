@@ -6,50 +6,82 @@ from random import randint
 import redis
 #------------------------------------------------------------------------------
 
+pool = redis.ConnectionPool(host='localhost', port=6379, db=0)
+r = redis.StrictRedis(connection_pool=pool)
+pipe = r.pipeline()
+ERROR = json.dumps({'r': '0'})
 
-def user_timeline(user_id, page=0, length=-1):
+
+def user_timeline(user_id, page=0, length=1):
     try:
-        r = redis.StrictRedis()
         id_score = r.zrevrange(user_id, page * length, (page + 1) * length - 1, withscores=True)
         if not id_score:
-            return json.dumps({'r': '0'})
+            return ERROR
         posts = [{
-            'action': r.get(user_id + ':' + i[0] + ':action'),
+            'action': r.get(user_id + ':' + i[0]),
             'question_id': i[0],
-            'unix_time': int(i[1])
+            'unix_time': str(int(i[1]))
             } for i in id_score]
+
+        # for i in id_score:
+        #     pipe.get(user_id + ':' + i[0])
+        # actions = pipe.execute()
+        # posts = [{
+        #     'action': actions[index],
+        #     'question_id': i[0],
+        #     'unix_time': str(int(i[1]))
+        #     } for index, i in enumerate(id_score)]
         return json.dumps(posts)
     except:
-        return json.dumps({'r': '0'})
+        return ERROR
 
 
 def hide_question(user_id, question_id):
     try:
-        r = redis.StrictRedis()
-        # the question in the hide zset
+        # the question in hide zset
         if r.zscore(user_id + ':hide', question_id):
-            return json.dumps({'r': '0'})
+            return ERROR
         unix_time = r.zscore(user_id, question_id)
-        r.zrem(user_id, question_id)  # del the question
-        r.zadd(user_id + ':hide', unix_time, question_id)  # add the question
+        pipe.zrem(user_id, question_id)  # del the question
+        pipe.zadd(user_id + ':hide', unix_time, question_id)  # add the question
+        pipe.execute()
         return json.dumps({'r': '1'})
     except:
-        return json.dumps({'r': '0'})
+        return ERROR
 
 
 def display_question(user_id, question_id):
     try:
-        r = redis.StrictRedis()
         # the question in the zset
         if r.zscore(user_id, question_id):
-            return json.dumps({'r': '0'})
+            return ERROR
         unix_time = r.zscore(user_id + ':hide', question_id)
-        r.zrem(user_id + ':hide', question_id)  # del the question
-        r.zadd(user_id, unix_time, question_id)  # add the question
+        pipe.zrem(user_id + ':hide', question_id)  # del the question
+        pipe.zadd(user_id, unix_time, question_id)  # add the question
+        pipe.execute()
         return json.dumps({'r': '1'})
     except:
-        return json.dumps({'r': '0'})
+        return ERROR
 
-print user_timeline('1', 0, 5)
+def main():
+    for j in xrange(1, 10):
+        use_time = 0
+        for k in xrange(10):
+            start = time.clock()
+            for i in xrange(10000):
+                user_timeline('1', 0, j)
+            end = time.clock()
+            use_time += end - start
+        print use_time / 10
+
+    # start = time.clock()
+    # for i in range(10000):
+    #     hide_question('1', '4729')
+    #     display_question('1', '4729')
+    # end = time.clock()
+    # print end - start
+
+if __name__ == '__main__':
+    main()
 # print hide_question('1', '7341')
 ###############################################################################
