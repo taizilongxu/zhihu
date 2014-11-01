@@ -8,6 +8,7 @@ from random import randint
 import redis
 import getopt
 import sys
+import os
 #------------------------------------------------------------------------------
 
 
@@ -30,7 +31,7 @@ def write_redis(host='localhost', port=6379, db=0):
 
 
 def main():
-    opts,args = getopt.getopt(sys.argv[1:],'h:p:d:')
+    opts, args = getopt.getopt(sys.argv[1:], 'h:p:d:')
     if len(opts) == 0:
         try:
             write_redis()
@@ -38,15 +39,19 @@ def main():
         except:
             print 'Redis error'
     elif len(opts) == 3:
+        options = {}
         for op, value in opts:
             if op == '-h':
-                host = value
+                options['host'] = value
             if op == '-p':
-                post = value
+                options['port'] = value
             if op == '-d':
-                db = value
+                options['db'] = value
+        path = os.getcwd()
+        with open(path + '/.redis.conf', 'w') as F:
+            F.write(json.dumps(options))
         try:
-            write_redis(host, post, db)
+            write_redis(options['host'], options['port'], options['db'])
             print 'OK'
         except:
             print 'Redis error'
