@@ -15,6 +15,7 @@ class ZhihuApi(object):
         self.ERROR = json.dumps({'r': '0'})
 
     def login_redis(self):
+        """Get the args of the redis"""
         options = {}
         path = os.getcwd() + '/.redis.conf'
         if os.path.exists(path):
@@ -27,6 +28,7 @@ class ZhihuApi(object):
         return r
 
     def user_timeline(self, user_id, page=0, length=1):
+        """Get the timeline of user"""
         try:
             id_score = self.r.zrevrange(user_id + ':timeline', page * length, (page + 1) * length - 1, withscores=True)
             if not id_score:
@@ -68,8 +70,10 @@ class ZhihuApi(object):
             return self.ERROR
 
     def hide_question(self, user_id, question_id):
+        """Hide the question"""
         return self.fun_question(user_id, question_id, 1)
 
     def display_question(self, user_id, question_id):
+        """Display the question"""
         return self.fun_question(user_id, question_id, 0)
 ###############################################################################
